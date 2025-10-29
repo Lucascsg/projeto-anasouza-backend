@@ -4,7 +4,7 @@ Este repositório contém a API RESTful (Back-End) que alimenta o e-commerce "An
 
 Este Back-End foi projetado para ser consumido pelo Front-End do projeto, que lida com toda a parte visual e experiência do usuário.
 
-➡️ **Link para o Repositório do Front-End:** [projeto-anasouza-frontend](https://github.com/SEU-USUARIO/projeto-anasouza-frontend) *(Substitua pelo seu link)*
+➡️ **Link para o Repositório do Front-End:** [projeto-anasouza-frontend](https://github.com/Lucascsg/projeto-anasouza-backend.git)
 
 ---
 
