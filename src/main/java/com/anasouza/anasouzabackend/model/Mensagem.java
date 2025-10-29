@@ -24,7 +24,7 @@ public class Mensagem {
     private String email;
 
     @Lob // Para texto longo
-    @Column(nullable = false, columnDefinition="TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String mensagem;
 
     private LocalDateTime dataEnvio;
@@ -34,6 +34,44 @@ public class Mensagem {
         this.dataEnvio = LocalDateTime.now(); // Define a data ao criar
     }
 
-    // Gere os Getters e Setters (Source -> Generate Getters and Setters...)
-    // ... (Getters e Setters para id, nome, email, mensagem, dataEnvio)
+    // Getters e Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getMensagem() {
+        return mensagem;
+    }
+
+    public void setMensagem(String mensagem) {
+        this.mensagem = mensagem;
+    }
+
+    public LocalDateTime getDataEnvio() {
+        return dataEnvio;
+    }
+
+    public void setDataEnvio(LocalDateTime dataEnvio) {
+        this.dataEnvio = dataEnvio;
+    }
 }
