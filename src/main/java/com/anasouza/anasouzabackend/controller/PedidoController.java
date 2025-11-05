@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.anasouza.anasouzabackend.model.ItemPedido;
 import com.anasouza.anasouzabackend.model.Pedido;
-import com.anasouza.anasouzabackend.model.Usuario; // Precisaremos do Usuário
+import com.anasouza.anasouzabackend.model.Usuario; 
 import com.anasouza.anasouzabackend.repository.PedidoRepository;
-import com.anasouza.anasouzabackend.repository.UsuarioRepository; // Para buscar o usuário
+import com.anasouza.anasouzabackend.repository.UsuarioRepository; 
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,18 +17,102 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-// DTO (Data Transfer Object) simples para receber os dados do carrinho do Front-End
-// Coloque esta classe dentro do arquivo PedidoController.java por simplicidade,
-// ou crie um pacote 'dto' e um arquivo 'CarrinhoItemDTO.java' separado.
+// DTO 'CarrinhoItemDTO' (sem mudanças, está perfeito)
 class CarrinhoItemDTO {
-    public Long id; // ID do produto original
-    public String nome;
-    public String preco;
-    public String variacaoId;
-    public String cor;
-    public String imagem;
-    public int quantidade;
+    private Long id; 
+    private String nome;
+    private String preco;
+    private String variacaoId;
+    private String cor;
+    private String imagem;
+    private int quantidade;
+    private boolean personalizado;
+    private String frase;
+    private String fraseCor;
+    private String fraseFonte;
+
+    // Getters e Setters (todos perfeitos)
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public String getPreco() { return preco; }
+    public void setPreco(String preco) { this.preco = preco; }
+    public String getVariacaoId() { return variacaoId; }
+    public void setVariacaoId(String variacaoId) { this.variacaoId = variacaoId; }
+    public String getCor() { return cor; }
+    public void setCor(String cor) { this.cor = cor; }
+    public String getImagem() { return imagem; }
+    public void setImagem(String imagem) { this.imagem = imagem; }
+    public int getQuantidade() { return quantidade; }
+    public void setQuantidade(int quantidade) { this.quantidade = quantidade; }
+    public boolean isPersonalizado() { return personalizado; }
+    public void setPersonalizado(boolean personalizado) { this.personalizado = personalizado; }
+    public String getFrase() { return frase; }
+    public void setFrase(String frase) { this.frase = frase; }
+    public String getFraseCor() { return fraseCor; }
+    public void setFraseCor(String fraseCor) { this.fraseCor = fraseCor; }
+    public String getFraseFonte() { return fraseFonte; }
+    public void setFraseFonte(String fraseFonte) { this.fraseFonte = fraseFonte; }
 }
+
+
+// ⭐ --- DTO 'CriarPedidoRequest' ATUALIZADO --- ⭐
+// (Agora inclui os dados de entrega)
+class CriarPedidoRequest {
+    private List<CarrinhoItemDTO> itensCarrinho;
+    private String emailUsuario; 
+    
+    // Novos campos de entrega
+    private String destinatarioNome;
+    private String cpf;
+    private String cep;
+    private String endereco;
+    private String complemento;
+    private String bairro;
+    private String cidade;
+    private String estado;
+
+    // Getters e Setters para campos antigos
+    public List<CarrinhoItemDTO> getItensCarrinho() {
+        return itensCarrinho;
+    }
+    public void setItensCarrinho(List<CarrinhoItemDTO> itensCarrinho) {
+        this.itensCarrinho = itensCarrinho;
+    }
+    public String getEmailUsuario() {
+        return emailUsuario;
+    }
+    public void setEmailUsuario(String emailUsuario) {
+        this.emailUsuario = emailUsuario;
+    }
+
+    // Getters e Setters para os NOVOS campos de entrega
+    public String getDestinatarioNome() { return destinatarioNome; }
+    public void setDestinatarioNome(String destinatarioNome) { this.destinatarioNome = destinatarioNome; }
+
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+
+    public String getEndereco() { return endereco; }
+    public void setEndereco(String endereco) { this.endereco = endereco; }
+
+    public String getComplemento() { return complemento; }
+    public void setComplemento(String complemento) { this.complemento = complemento; }
+
+    public String getBairro() { return bairro; }
+    public void setBairro(String bairro) { this.bairro = bairro; }
+
+    public String getCidade() { return cidade; }
+    public void setCidade(String cidade) { this.cidade = cidade; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+}
+// ⭐ --- FIM DO DTO ATUALIZADO --- ⭐
 
 
 @RestController
@@ -40,67 +124,76 @@ public class PedidoController {
     private PedidoRepository pedidoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository; // Para associar o pedido a um usuário
+    private UsuarioRepository usuarioRepository; 
 
     // --- Endpoint para Criar um Novo Pedido (Checkout) ---
     @PostMapping
-    public ResponseEntity<?> criarPedido(@RequestBody List<CarrinhoItemDTO> itensCarrinho) {
+    public ResponseEntity<?> criarPedido(@RequestBody CriarPedidoRequest request) {
         
-        // --- SIMULAÇÃO: Pegar o Usuário Logado ---
-        // Em um sistema real com Spring Security, pegaríamos o usuário autenticado.
-        // Por agora, vamos assumir que o usuário com ID 1 está fazendo o pedido.
-        // Você PODE receber o email do usuário do front-end (do sessionStorage) e buscar aqui.
-        Long usuarioId = 1L; // Exemplo Fixo! Mude se quiser testar com outro ID
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId); 
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(request.getEmailUsuario()); 
+        
         if (!usuarioOptional.isPresent()) {
-             // Cadastre um usuário com ID 1 manualmente no data.sql ou via API /registrar para testar
-             // INSERT INTO USUARIOS (nome, email, senha) VALUES ('Usuário Teste', 'teste@teste.com', '123');
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuário de teste com ID 1 não encontrado. Cadastre-o primeiro."));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Usuário " + request.getEmailUsuario() + " não encontrado."));
         }
         Usuario usuarioLogado = usuarioOptional.get();
-        // --- FIM DA SIMULAÇÃO ---
 
-        if (itensCarrinho == null || itensCarrinho.isEmpty()) {
+        if (request.getItensCarrinho() == null || request.getItensCarrinho().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "O carrinho não pode estar vazio."));
         }
 
         try {
             Pedido novoPedido = new Pedido();
-            novoPedido.setUsuario(usuarioLogado); // Associa o pedido ao usuário
-            novoPedido.setDataPedido(LocalDateTime.now()); // Data já é definida no construtor, mas podemos garantir aqui
+            novoPedido.setUsuario(usuarioLogado); 
+            novoPedido.setDataPedido(LocalDateTime.now());
             
+            // ⭐ --- NOVAS LINHAS: Copiando os dados de ENTREGA do Request para a Entidade --- ⭐
+            novoPedido.setDestinatarioNome(request.getDestinatarioNome());
+            novoPedido.setCpf(request.getCpf());
+            novoPedido.setCep(request.getCep());
+            novoPedido.setEndereco(request.getEndereco());
+            novoPedido.setComplemento(request.getComplemento()); // Pode ser nulo
+            novoPedido.setBairro(request.getBairro());
+            novoPedido.setCidade(request.getCidade());
+            novoPedido.setEstado(request.getEstado());
+            // ⭐ --- FIM DAS NOVAS LINHAS --- ⭐
+
             List<ItemPedido> itensDoPedido = new ArrayList<>();
             double valorTotalCalculado = 0.0;
 
-            // Transforma os DTOs do carrinho em Entidades ItemPedido
-            for (CarrinhoItemDTO itemDTO : itensCarrinho) {
-                ItemPedido item = new ItemPedido();
-                item.setPedido(novoPedido); // Associa o item ao novo pedido
-                item.setProdutoId(itemDTO.id);
-                item.setNomeProduto(itemDTO.nome);
-                item.setCorProduto(itemDTO.cor);
-                item.setPrecoUnitario(itemDTO.preco); // Guarda o preço como string
-                item.setQuantidade(itemDTO.quantidade);
+            for (CarrinhoItemDTO itemDTO : request.getItensCarrinho()) {
+                ItemPedido item = new ItemPedido(); // A Entidade
+                item.setPedido(novoPedido); 
                 
-                // Calcula o subtotal deste item
-                double precoUnit = parsePrecoParaNumero(itemDTO.preco);
+                // Copiando dados básicos (sem mudança)
+                item.setProdutoId(itemDTO.getId());
+                item.setNomeProduto(itemDTO.getNome());
+                item.setCorProduto(itemDTO.getCor());
+                item.setPrecoUnitario(itemDTO.getPreco()); 
+                item.setQuantidade(itemDTO.getQuantidade());
+                
+                // Copiando dados de personalização (sem mudança)
+                item.setPersonalizado(itemDTO.isPersonalizado());
+                item.setFrase(itemDTO.getFrase());
+                item.setFraseCor(itemDTO.getFraseCor());
+                item.setFraseFonte(itemDTO.getFraseFonte());
+                
+                // Cálculo de total (sem mudança)
+                double precoUnit = parsePrecoParaNumero(itemDTO.getPreco());
                 if (!isNaN(precoUnit)) {
-                    valorTotalCalculado += precoUnit * itemDTO.quantidade;
+                    valorTotalCalculado += precoUnit * itemDTO.getQuantidade();
                 }
                 
                 itensDoPedido.add(item);
             }
 
-            novoPedido.setItens(itensDoPedido); // Adiciona a lista de itens ao pedido
-            novoPedido.setValorTotal(valorTotalCalculado); // Define o valor total calculado
+            novoPedido.setItens(itensDoPedido); 
+            novoPedido.setValorTotal(valorTotalCalculado); 
 
-            // Salva o Pedido (e os Itens, devido ao CascadeType.ALL)
             Pedido pedidoSalvo = pedidoRepository.save(novoPedido);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(pedidoSalvo); // Retorna o pedido criado
+            return ResponseEntity.status(HttpStatus.CREATED).body(pedidoSalvo); 
 
         } catch (Exception e) {
-            // Logar o erro real no servidor é importante
             System.err.println("Erro ao criar pedido: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Erro interno ao processar o pedido."));
@@ -108,41 +201,42 @@ public class PedidoController {
     }
     
     // --- Endpoint para Listar Pedidos do Usuário (Histórico) ---
+    // (Sem mudanças, ele automaticamente retornará os novos campos do Pedido)
     @GetMapping("/meus-pedidos")
-    public ResponseEntity<?> listarMeusPedidos() {
-        // --- SIMULAÇÃO: Pegar o Usuário Logado ---
-        Long usuarioId = 1L; // Mesma simulação de ID fixo
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId); 
+    public ResponseEntity<?> listarMeusPedidos(@RequestParam("email") String email) {
+        
+        Optional<Usuario> usuarioOptional = usuarioRepository.findByEmail(email); 
+        
         if (!usuarioOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Usuário não encontrado para buscar histórico."));
         }
         Usuario usuarioLogado = usuarioOptional.get();
-        // --- FIM DA SIMULAÇÃO ---
 
         try {
-            // Usa o método customizado do repositório para buscar os pedidos do usuário
             List<Pedido> pedidos = pedidoRepository.findByUsuarioOrderByDataPedidoDesc(usuarioLogado);
-            return ResponseEntity.ok(pedidos); // Retorna a lista de pedidos (com itens, devido ao EAGER fetch)
+            return ResponseEntity.ok(pedidos);
 
         } catch (Exception e) {
-             System.err.println("Erro ao buscar pedidos: " + e.getMessage());
-             e.printStackTrace();
-             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Erro interno ao buscar o histórico de pedidos."));
+            System.err.println("Erro ao buscar pedidos: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Erro interno ao buscar o histórico de pedidos."));
         }
     }
 
-    // --- Funções Auxiliares ---
+    // --- Funções Auxiliares (Sem Mudanças) ---
     private double parsePrecoParaNumero(String precoStr) {
         if (precoStr == null) return 0.0;
         try {
-            return Double.parseDouble(precoStr.replace("R$ ", "").replace(".", "").replace(",", "."));
+            String numeroLimpo = precoStr.replaceAll("[^\\d,]", ""); 
+            numeroLimpo = numeroLimpo.replaceAll(",", "."); 
+            return Double.parseDouble(numeroLimpo);
         } catch (NumberFormatException e) {
-            System.err.println("Erro ao parsear preço: " + precoStr + " - " + e.getMessage());
-            return 0.0; // Retorna 0 se não conseguir converter
+            System.err.println("!!! ERRO CRÍTICO AO PARSEAR PREÇO NO BACK-END: '" + precoStr + "'");
+            return 0.0; 
         }
     }
+
     private boolean isNaN(double num) {
         return Double.isNaN(num);
     }
-
 }

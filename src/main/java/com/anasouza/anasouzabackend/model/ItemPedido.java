@@ -26,11 +26,18 @@ public class ItemPedido {
     private Pedido pedido;
 
     // Informações do produto no momento da compra (guardamos cópias)
-    private Long produtoId; // Poderia ser um @ManyToOne Produto, mas guardar ID/nome/preço é mais simples e seguro contra mudanças futuras no produto
+    private Long produtoId; 
     private String nomeProduto;
     private String corProduto;
-    private String precoUnitario; // Guardamos o preço como string, como estava no carrinho
+    private String precoUnitario; 
     private int quantidade;
+
+    // ⭐ --- NOVOS CAMPOS DE PERSONALIZAÇÃO --- ⭐
+    private boolean personalizado = false; // Valor padrão é falso
+    private String frase;
+    private String fraseCor;
+    private String fraseFonte;
+    // ⭐ --- FIM DOS NOVOS CAMPOS --- ⭐
 
     // Construtor vazio
     public ItemPedido() {
@@ -93,4 +100,40 @@ public class ItemPedido {
     public void setQuantidade(int quantidade) {
         this.quantidade = quantidade;
     }
+
+    // ⭐ --- NOVOS GETTERS E SETTERS --- ⭐
+    // (Para os campos de personalização)
+
+    public boolean isPersonalizado() {
+        return personalizado;
+    }
+
+    public void setPersonalizado(boolean personalizado) {
+        this.personalizado = personalizado;
+    }
+
+    public String getFrase() {
+        return frase;
+    }
+
+    public void setFrase(String frase) {
+        this.frase = frase;
+    }
+
+    public String getFraseCor() {
+        return fraseCor;
+    }
+
+    public void setFraseCor(String fraseCor) {
+        this.fraseCor = fraseCor;
+    }
+
+    public String getFraseFonte() {
+        return fraseFonte;
+    }
+
+    public void setFraseFonte(String fraseFonte) {
+        this.fraseFonte = fraseFonte;
+    }
+    // ⭐ --- FIM DOS NOVOS GETTERS E SETTERS --- ⭐
 }
